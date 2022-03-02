@@ -17,7 +17,7 @@ At this point you should have a functional python environment identical to the o
 
 # Pytorch Installation
 
-It should be noted that if you plan to use pytorch to run the project you should install it to fit your system requirements. The command for this can be generated at the (Pytorch Homepage)[https://pytorch.org/]. For conveinence, if you are running a linux system without GPU, with the `EEG_RNN` envrionment active, you may run:
+It should be noted that if you plan to use pytorch to run the project you should install it to fit your system requirements. The command for this can be generated at the [Pytorch Homepage](https://pytorch.org/). For conveinence, if you are running a linux system without GPU, with the `EEG_RNN` envrionment active, you may run:
 
 ```
 pip3 install torch==1.10.2+cpu torchvision==0.11.3+cpu torchaudio==0.10.2+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
