@@ -10,20 +10,20 @@
 import torch, torchaudio, torchvision
 
 class RNN():
-    self.__init__():
-    '''
-       @breif 
-       @return 
-       @param 
-       @param 
-    '''
+    def __init__(self):
+        '''
+           @breif 
+           @return 
+           @param 
+           @param 
+        '''
     
         pass
-    self.train():
-    '''
-       @breif 
-       @return 
-       @param 
-       @param 
-    '''
+    def train(self):
+        '''
+        @breif 
+        @return 
+        @param 
+        @param 
+        '''
         pass
