@@ -15,7 +15,7 @@ import torch.optim as optim
 from torch.autograd import Variable 
 
 class Solver():
-    def __init__(self, num_epocs:int, NN:nn.module, optimizer, LR_scheduler:optim.lr_scheduler,
+    def __init__(self, num_epocs:int, NN, optimizer, LR_scheduler,
                          criterion, verbose:bool=True)->None:
         '''
            @breif Instantaition function for a solver, will store all relevant huper parameters the network is being trained with
@@ -27,13 +27,14 @@ class Solver():
            @param criterion pytorch loss function for classification
         '''
         self.optimizer = optimizer
-        self.LR_scheduler = LR_scheduler
+        self.scheduler = LR_scheduler
         self.criterion = criterion
-        self.num_epocs = num_epocs
+        self.num_epochs = num_epocs
         self.net = NN
         self.verbose = verbose
         self.best_validation_accuracy = 0.0
-
+        self.loss_history = []
+        self.val_loss_history = []
     def train(self, trainloader, validloader):
         '''
            @breif train the provided nerual net
@@ -44,17 +45,19 @@ class Solver():
         for epoch in range(self.num_epochs):
             for i, data in enumerate(trainloader,0):
                 inputs,labels = data
-                outputs = self.NN.forward(inputs) #forward pass
-                self.optimizer.zero_grad() #calculate the gradient, manually setting to 0
+                outputs = self.net.forward(inputs) #forward pass
                 loss = self.criterion(outputs, labels.reshape(labels.size(0),).type(torch.long))
-            
                 loss.backward() #calculates the loss of the loss function
             
                 self.optimizer.step() #improve from loss, i.e backprop
+                self.optimizer.zero_grad() #calculate the gradient, manually setting to 0
+
             self.scheduler.step()
             if(self.verbose):
                 print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
             self.validate(validloader)
+            self.loss_history.append(loss.item())
+
     def validate(self, validloader):
         '''
            @breif validate the provided nerual net
@@ -68,6 +71,8 @@ class Solver():
             for data in validloader:
                 inputs, labels = data
                 outputs = self.net(inputs)
+                loss = self.criterion(outputs, labels.reshape(labels.size(0),).type(torch.long))
+
                 # the class with the highest energy is what we choose as prediction
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
@@ -76,6 +81,7 @@ class Solver():
             if(self.verbose):
                  print("  Val Accuracy: %1.5f"% (accuracy))
             self.best_validation_accuracy = accuracy if (accuracy > self.best_validation_accuracy) else self.best_validation_accuracy
+            self.val_loss_history.append(loss.item())
 
     def test(self, testloader):
         '''
