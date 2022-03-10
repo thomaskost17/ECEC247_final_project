@@ -35,6 +35,7 @@ class Solver():
         self.best_validation_accuracy = 0.0
         self.loss_history = []
         self.val_loss_history = []
+        self.val_accuracy_history = []
     def train(self, trainloader, validloader):
         '''
            @breif train the provided nerual net
@@ -47,11 +48,12 @@ class Solver():
             itt=0
             for i, data in enumerate(trainloader,0):
                 inputs,labels = data
-                #inputs = inputs.reshape((*inputs.shape,1))
+                inputs = inputs.reshape((*inputs.shape,1))
                 outputs = self.net.forward(inputs) #forward pass
                 loss = self.criterion(outputs, labels.reshape(labels.size(0),).type(torch.long))
                 loss.backward() #calculates the loss of the loss function
-            
+
+                torch.nn.utils.clip_grad_norm_(self.net.parameters(), max_norm = 2.0, norm_type=2)
                 self.optimizer.step() #improve from loss, i.e backprop
                 self.optimizer.zero_grad() #calculate the gradient, manually setting to 0
                 total_loss += loss.item()
@@ -76,7 +78,7 @@ class Solver():
         with torch.no_grad():
             for data in validloader:
                 inputs, labels = data
-                #inputs = inputs.reshape((*inputs.shape,1))
+                inputs = inputs.reshape((*inputs.shape,1))
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels.reshape(labels.size(0),).type(torch.long))
 
@@ -91,6 +93,7 @@ class Solver():
                  print("  Val Accuracy: %1.5f"% (accuracy))
             self.best_validation_accuracy = accuracy if (accuracy > self.best_validation_accuracy) else self.best_validation_accuracy
             self.val_loss_history.append(float(total_loss)/float(itt))
+            self.val_accuracy_history.append(accuracy)
 
     def test(self, testloader):
         '''
@@ -103,7 +106,7 @@ class Solver():
         with torch.no_grad():
             for data in testloader:
                 inputs, labels = data
-                #inputs = inputs.reshape((*inputs.shape,1))
+                inputs = inputs.reshape((*inputs.shape,1))
                 outputs = self.net(inputs)
                 # the class with the highest energy is what we choose as prediction
                 _, predicted = torch.max(outputs.data, 1)

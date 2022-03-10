@@ -1,5 +1,5 @@
 '''
-  File: cnn.py
+  File: cnn_lstm.py
  
   Author: Thomas Kost, Mark Schelbe, Zichao Xian, Trishala Chari
   
@@ -13,9 +13,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable 
 
-class CNN(nn.Module):
+class CNN_LSTM(nn.Module):
     def __init__(self, num_classes, input_size, hidden_size, num_layers, seq_length):
-        super(CNN, self).__init__()
+        super(CNN_LSTM, self).__init__()
         self.num_classes = num_classes #number of classes
         self.num_layers = num_layers #number of layers
         self.input_size = input_size #input size
@@ -50,14 +50,39 @@ class CNN(nn.Module):
             nn.BatchNorm2d(200),
             nn.Dropout(0.5),
 
-            nn.Flatten(1),# Nx800
-            nn.Linear(800,self.num_classes)
+            nn.Flatten(2)# Nx800  
+            #nn.Linear(800,self.num_classes)
         )
-
+        self.LSTM = nn.Sequential(
+            nn.LSTM(input_size=4, hidden_size=self.hidden_size,
+                    num_layers=num_layers, batch_first=True)
+        )
+        self.L5 = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Flatten(1),
+            nn.Linear(200*self.hidden_size, 1024),
+            nn.ReLU(),
+            #nn.Batchnorm(1024),
+            nn.Dropout(0.2)
+        )
+        self.L6 = nn.Sequential(
+            nn.Linear(1024, 256),
+            nn.ReLU(),
+            #nn.Batchnorm(256),
+            nn.Dropout(0.2)
+        )
+        self.L7 = nn.Sequential(
+            nn.Linear(256, self.num_classes),
+        )
     
     def forward(self,x):
+
         out = self.L1(x)
         out = self.L2(out)
         out = self.L3(out)
         out = self.L4(out)
+        out,_ = self.LSTM(out)
+        out = self.L5(out)
+        out = self.L6(out)
+        out = self.L7(out)
         return out
