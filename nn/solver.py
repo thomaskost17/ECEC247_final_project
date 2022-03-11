@@ -36,6 +36,8 @@ class Solver():
         self.loss_history = []
         self.val_loss_history = []
         self.val_accuracy_history = []
+        self.test_accuracy = []
+        
     def train(self, trainloader, validloader):
         '''
            @breif train the provided nerual net
@@ -114,4 +116,4 @@ class Solver():
                 correct += (predicted == labels.reshape(labels.size(0),)).sum().item()
             if(self.verbose):
                 print("Test Accuracy: %1.5f"% (float(correct) / float(total)))
-             
+            self.test_accuracy = float(correct) / float(total)
