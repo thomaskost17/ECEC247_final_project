@@ -17,6 +17,8 @@ def std_preprocess_EEG(X_test,y_test,person_train_valid,X_train_valid,y_train_va
     y_test -= 769
     X_train_valid_prep,y_train_valid_prep = data_prep(X_train_valid,y_train_valid,2,2,True, 0, 500)
     x_test, y_test = data_prep(X_test,y_test,2,2,True, 0, 500)
+    person_train_valid = np.tile(person_train_valid,4)
+    person_test = np.tile(person_test,4)
     # First generating the training and validation indices using random splitting
     ind_valid = np.random.choice(8460, val_size, replace=False)
     ind_train = np.array(list(set(range(8460)).difference(set(ind_valid))))
