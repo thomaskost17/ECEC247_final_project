@@ -25,6 +25,7 @@ def std_preprocess_EEG(X_test,y_test,person_train_valid,X_train_valid,y_train_va
     # Creating the training and validation sets using the generated indices
     (x_train, x_valid) = X_train_valid_prep[ind_train], X_train_valid_prep[ind_valid] 
     (y_train, y_valid) = y_train_valid_prep[ind_train], y_train_valid_prep[ind_valid]
+    (person_train, person_valid) = person_train_valid[ind_train], person_train_valid[ind_valid]
     x_train = Variable(torch.Tensor(x_train))
     x_valid = Variable(torch.Tensor(x_valid))
     x_test = Variable(torch.Tensor(x_test))
@@ -38,7 +39,7 @@ def std_preprocess_EEG(X_test,y_test,person_train_valid,X_train_valid,y_train_va
     y_test = Variable(torch.Tensor(y_test))
     y_test = torch.reshape(y_test, (y_test.shape[0], 1))
 
-    return (X_test,y_test,person_train_valid,X_train_valid,y_train_valid,person_test)
+    return (person_test,x_test,y_test,person_valid,x_valid,y_valid,person_train, x_train, y_train)
     
 def data_prep(X,y,sub_sample,average,noise, trim_begin, trim_end):
     
