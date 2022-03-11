@@ -14,9 +14,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable 
 
+
 class Solver():
     def __init__(self, num_epocs:int, NN, optimizer, LR_scheduler,
-                         criterion, verbose:bool=True)->None:
+                         criterion, verbose:bool=True, cnn_reshape:bool=True)->None:
         '''
            @breif Instantaition function for a solver, will store all relevant huper parameters the network is being trained with
            @return None
@@ -36,6 +37,7 @@ class Solver():
         self.loss_history = []
         self.val_loss_history = []
         self.val_accuracy_history = []
+        self.cnn_reshape = cnn_reshape
     def train(self, trainloader, validloader):
         '''
            @breif train the provided nerual net
@@ -48,7 +50,8 @@ class Solver():
             itt=0
             for i, data in enumerate(trainloader,0):
                 inputs,labels = data
-                inputs = inputs.reshape((*inputs.shape,1))
+                if(self.cnn_reshape):
+                    inputs = inputs.reshape((*inputs.shape,1))
                 outputs = self.net.forward(inputs) #forward pass
                 loss = self.criterion(outputs, labels.reshape(labels.size(0),).type(torch.long))
                 loss.backward() #calculates the loss of the loss function
@@ -78,7 +81,8 @@ class Solver():
         with torch.no_grad():
             for data in validloader:
                 inputs, labels = data
-                inputs = inputs.reshape((*inputs.shape,1))
+                if(self.cnn_reshape):
+                    inputs = inputs.reshape((*inputs.shape,1))
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels.reshape(labels.size(0),).type(torch.long))
 
@@ -106,7 +110,8 @@ class Solver():
         with torch.no_grad():
             for data in testloader:
                 inputs, labels = data
-                inputs = inputs.reshape((*inputs.shape,1))
+                if(self.cnn_reshape):
+                    inputs = inputs.reshape((*inputs.shape,1))
                 outputs = self.net(inputs)
                 # the class with the highest energy is what we choose as prediction
                 _, predicted = torch.max(outputs.data, 1)
@@ -114,4 +119,4 @@ class Solver():
                 correct += (predicted == labels.reshape(labels.size(0),)).sum().item()
             if(self.verbose):
                 print("Test Accuracy: %1.5f"% (float(correct) / float(total)))
-             
+        return float(correct) / float(total)

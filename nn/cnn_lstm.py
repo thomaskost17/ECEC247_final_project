@@ -23,28 +23,28 @@ class CNN_LSTM(nn.Module):
         self.seq_len =seq_length
 
         self.L1 = nn.Sequential(
-            nn.Conv1d(in_channels=self.seq_len, out_channels = 25, kernel_size = (9,1), padding='same' ),
+            nn.Conv1d(in_channels=self.seq_len, out_channels = 25, kernel_size = (11,1), padding='same' ),
             nn.ELU(),
             nn.MaxPool2d(kernel_size = (3,1), padding=(1,0)),
             nn.BatchNorm2d(25),
             nn.Dropout(0.5)
         )
         self.L2 = nn.Sequential(
-            nn.Conv1d(in_channels=25, out_channels = 50, kernel_size = (9,1), padding='same' ),
+            nn.Conv1d(in_channels=25, out_channels = 50, kernel_size = (11,1), padding='same' ),
             nn.ELU(),
             nn.MaxPool2d(kernel_size = (3,1), padding=(1,0)),
             nn.BatchNorm2d(50),
             nn.Dropout(0.5)
         )
         self.L3 = nn.Sequential(
-            nn.Conv1d(in_channels=50, out_channels = 100, kernel_size = (9,1), padding='same' ),
+            nn.Conv1d(in_channels=50, out_channels = 100, kernel_size = (11,1), padding='same' ),
             nn.ELU(),
             nn.MaxPool2d(kernel_size = (3,1), padding=(1,0)),
             nn.BatchNorm2d(100),
             nn.Dropout(0.5)
         )
         self.L4 = nn.Sequential(
-            nn.Conv1d(in_channels=100, out_channels = 200, kernel_size = (9,1), padding='same' ),
+            nn.Conv1d(in_channels=100, out_channels = 200, kernel_size = (11,1), padding='same' ),
             nn.ELU(),
             nn.MaxPool2d(kernel_size = (3,1), padding=(1,0)),
             nn.BatchNorm2d(200),
@@ -54,7 +54,7 @@ class CNN_LSTM(nn.Module):
             #nn.Linear(800,self.num_classes)
         )
         self.LSTM = nn.Sequential(
-            nn.LSTM(input_size=4, hidden_size=self.hidden_size,
+            nn.LSTM(input_size=4, hidden_size=self.hidden_size, #4
                     num_layers=num_layers, batch_first=True)
         )
         self.L5 = nn.Sequential(
