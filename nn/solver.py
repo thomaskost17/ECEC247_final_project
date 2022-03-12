@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable 
-
+import numpy as np
 
 class Solver():
     def __init__(self, num_epocs:int, NN, optimizer, LR_scheduler,
@@ -123,3 +123,24 @@ class Solver():
                 print("Test Accuracy: %1.5f"% (float(correct) / float(total)))
             self.test_accuracy = float(correct) / float(total)
         return float(correct) / float(total)
+    def test_by_class(self, testloader):
+        num_classes = self.net.num_classes
+        class_accuracies = np.zeros(num_classes)
+        class_correct = np.zeros(num_classes)
+        class_total = np.zeros(num_classes)
+
+        with torch.no_grad():
+            for data in testloader:
+                inputs, labels = data
+                if(self.cnn_reshape):
+                    inputs = inputs.reshape((*inputs.shape,1))
+                outputs = self.net(inputs)
+                # the class with the highest energy is what we choose as prediction
+                _, predicted = torch.max(outputs.data, 1)
+                for i in range(num_classes):
+                    mask = labels==i
+                    mask = mask.reshape(labels.size(0),)
+                    class_total[i] += mask.sum().item()
+                    class_correct[i] += ((predicted == labels.reshape(labels.size(0),))*mask).sum().item()
+        class_accuracies = class_correct/class_total
+        return class_accuracies

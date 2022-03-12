@@ -17,15 +17,15 @@ def std_preprocess_EEG(X_test,y_test,person_train_valid,X_train_valid,y_train_va
     y_test -= 769
     X_train_valid_prep,y_train_valid_prep = data_prep(X_train_valid,y_train_valid,2,2,True, 0, 500)
     x_test, y_test = data_prep(X_test,y_test,2,2,True, 0, 500)
-    person_train_valid = np.tile(person_train_valid,4)
-    person_test = np.tile(person_test,4)
+    person_train_valid_prep = np.tile(person_train_valid,(4,1))
+    person_test = np.tile(person_test,(4,1))
     # First generating the training and validation indices using random splitting
     ind_valid = np.random.choice(8460, val_size, replace=False)
     ind_train = np.array(list(set(range(8460)).difference(set(ind_valid))))
     # Creating the training and validation sets using the generated indices
     (x_train, x_valid) = X_train_valid_prep[ind_train], X_train_valid_prep[ind_valid] 
     (y_train, y_valid) = y_train_valid_prep[ind_train], y_train_valid_prep[ind_valid]
-    (person_train, person_valid) = person_train_valid[ind_train], person_train_valid[ind_valid]
+    (person_train, person_valid) = person_train_valid_prep[ind_train], person_train_valid_prep[ind_valid]
     x_train = Variable(torch.Tensor(x_train))
     x_valid = Variable(torch.Tensor(x_valid))
     x_test = Variable(torch.Tensor(x_test))
@@ -48,7 +48,6 @@ def data_prep(X,y,sub_sample,average,noise, trim_begin, trim_end):
     
     # Trimming the data (sample,22,1000) -> (sample,22,500)
     X = X[:,:,trim_begin:trim_end]
-    print('Shape of X after trimming:',X.shape)
     
     # Maxpooling the data (sample,22,1000) -> (sample,22,500/sub_sample)
     X_max = np.max(X.reshape(X.shape[0], X.shape[1], -1, sub_sample), axis=3)
@@ -56,7 +55,6 @@ def data_prep(X,y,sub_sample,average,noise, trim_begin, trim_end):
     
     total_X = X_max
     total_y = y
-    print('Shape of X after maxpooling:',total_X.shape)
     
     # Averaging + noise 
     X_average = np.mean(X.reshape(X.shape[0], X.shape[1], -1, average),axis=3)
@@ -64,7 +62,6 @@ def data_prep(X,y,sub_sample,average,noise, trim_begin, trim_end):
     
     total_X = np.vstack((total_X, X_average))
     total_y = np.hstack((total_y, y))
-    print('Shape of X after averaging+noise and concatenating:',total_X.shape)
     
     # Subsampling
     
@@ -77,5 +74,4 @@ def data_prep(X,y,sub_sample,average,noise, trim_begin, trim_end):
         total_y = np.hstack((total_y, y))
         
     
-    print('Shape of X after subsampling and concatenating:',total_X.shape)
     return total_X,total_y
